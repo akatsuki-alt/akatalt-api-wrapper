@@ -29,6 +29,35 @@ class ClanLeaderboardTypeEnum(str, Enum):
     total_score = "total_score"
     play_count = "play_count"
 
+class UserRank:
+    
+    def __init__(self, global_rank: int, country_rank: int) -> None:
+        self.global_rank = global_rank
+        self.country_rank = country_rank
+
+class Score:
+    
+    def __init__(self, api, beatmap_id: int, server: str, user_id: int, mode: int, relax: int, score_id: int, accuracy: float, mods: int, pp: float, score: int, combo: int, rank: str, count_300: int, count_100: int, count_50: int, count_miss: int, completed: int, date: int) -> None:
+        self.api = api
+        self.beatmap_id = beatmap_id
+        self.server = server
+        self.user_id = user_id
+        self.mode = mode
+        self.relax = relax
+        self.score_id = score_id
+        self.accuracy = accuracy
+        self.mods = mods
+        self.pp = pp
+        self.score = score
+        self.combo = combo
+        self.rank = rank
+        self.count_300 = count_300
+        self.count_100 = count_100
+        self.count_50 = count_50
+        self.count_miss = count_miss
+        self.completed = completed
+        self.date = date
+
 class User:
     
     def __init__(self, api, user_id, server, username, registered_on, latest_activity, country, clan, followers) -> None:
@@ -193,13 +222,30 @@ class AkatAltAPI:
         return UserStatistics(self, **req.json())
 
     def get_user_1s(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), page=1, length=100):
-        return self._get(f"{self.url}/user/first_places?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&page={page}&length={length}").json()
+        req = self._get(f"{self.url}/user/first_places?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&page={page}&length={length}")
+        if not req.ok or not req.content:
+            return
+        data = req.json()
+        scores = list()
+        for score in data['scores']:
+            scores.append(Score(self, **score))
+        return data['total'], scores
 
-    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), page=1, length=100):
-        return self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&page={page}&length={length}").json()
+    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), page=1, length=100) -> Tuple[int, List[Score]]:
+        req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&page={page}&length={length}")
+        if not req.ok or not req.content:
+            return
+        data = req.json()
+        scores = list()
+        for score in data['scores']:
+            scores.append(Score(self, **score))
+        return data['total'], scores
 
     def get_user_rank(self, user_id, server="akatsuki", mode=0, relax=0, type: UserLeaderboardTypeEnum=UserLeaderboardTypeEnum.pp):
-        return self._get(f"{self.url}/user/rank?server={server}&user_id={user_id}&mode={mode}&relax={relax}&type={type}").json()
+        req = self._get(f"{self.url}/user/rank?server={server}&user_id={user_id}&mode={mode}&relax={relax}&type={type}")
+        if not req.ok or not req.content:
+            return
+        return UserRank(**req.json())
 
     def get_clan_info(self, clan_id, server="akatsuki") -> Clan | None:
         req = self._get(f"{self.url}/clan/info?server={server}&clan_id={clan_id}")
