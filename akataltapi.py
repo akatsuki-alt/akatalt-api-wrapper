@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from enum import Enum
 from typing import *
 import requests
 import time
