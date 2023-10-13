@@ -183,7 +183,7 @@ class AkatAltAPI:
         self._last = time.time()
         return requests.get(url)
     
-    def get_user_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, type: UserLeaderboardTypeEnum = UserLeaderboardTypeEnum.pp) -> List[UserLeaderboardStats]:
+    def get_user_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, type: UserLeaderboardTypeEnum = UserLeaderboardTypeEnum.pp) -> List[UserLeaderboardStats] | None:
         req = self._get(f"{self.url}/leaderboard/user?server={server}&mode={mode}&relax={relax}&page={page}&length={length}&type={type}")
         if not req.ok:
             return
@@ -192,7 +192,7 @@ class AkatAltAPI:
             stats.append(UserLeaderboardStats(self, **user))
         return stats
 
-    def get_user_extra_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, date: date=date.today(), type: UserExtraLeaderboardTypeEnum = UserExtraLeaderboardTypeEnum.pp) -> List[UserStatistics]:
+    def get_user_extra_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, date: date=date.today(), type: UserExtraLeaderboardTypeEnum = UserExtraLeaderboardTypeEnum.pp) -> List[UserStatistics] | None:
         req = self._get(f"{self.url}/leaderboard/user_extra?server={server}&date={date.strftime('%Y-%m-%d')}&mode={mode}&relax={relax}&page={page}&length={length}&type={type}")
         if not req.ok:
             return
@@ -201,7 +201,7 @@ class AkatAltAPI:
             stats.append(UserStatistics(self, **user))
         return stats
 
-    def get_clan_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, type: ClanLeaderboardTypeEnum = ClanLeaderboardTypeEnum.pp):
+    def get_clan_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, type: ClanLeaderboardTypeEnum = ClanLeaderboardTypeEnum.pp) -> List[ClanStatistics] | None:
         req = self._get(f"{self.url}/leaderboard/clan?server={server}&mode={mode}&relax={relax}&page={page}&length={length}&type={type}")
         if not req.ok or not req.content:
             return
@@ -210,19 +210,19 @@ class AkatAltAPI:
             stats.append(ClanStatistics(self, **user))
         return stats
 
-    def get_user_info(self, user_id, server="akatsuki") -> User:
+    def get_user_info(self, user_id, server="akatsuki") -> User | None:
         req = self._get(f"{self.url}/user/info?user_id={user_id}&server={server}")
         if not req.ok or req.content:
             return
         return User(self, **req.json())
 
-    def get_user_statistics(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today()):
+    def get_user_statistics(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today()) -> UserStatistics | None:
         req = self._get(f"{self.url}/user/stats?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}")
         if not req.ok or req.content:
             return
         return UserStatistics(self, **req.json())
 
-    def get_user_1s(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), page=1, length=100):
+    def get_user_1s(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), page=1, length=100) -> Tuple[int, List[Score]] | None:
         req = self._get(f"{self.url}/user/first_places?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&page={page}&length={length}")
         if not req.ok or not req.content:
             return
@@ -232,7 +232,7 @@ class AkatAltAPI:
             scores.append(Score(self, **score))
         return data['total'], scores
 
-    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), page=1, length=100) -> Tuple[int, List[Score]]:
+    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), page=1, length=100) -> Tuple[int, List[Score]] | None:
         req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&page={page}&length={length}")
         if not req.ok or not req.content:
             return
@@ -242,7 +242,7 @@ class AkatAltAPI:
             scores.append(Score(self, **score))
         return data['total'], scores
 
-    def get_user_rank(self, user_id, server="akatsuki", mode=0, relax=0, type: UserLeaderboardTypeEnum=UserLeaderboardTypeEnum.pp):
+    def get_user_rank(self, user_id, server="akatsuki", mode=0, relax=0, type: UserLeaderboardTypeEnum=UserLeaderboardTypeEnum.pp) -> UserRank | None:
         req = self._get(f"{self.url}/user/rank?server={server}&user_id={user_id}&mode={mode}&relax={relax}&type={type}")
         if not req.ok or not req.content:
             return
@@ -254,7 +254,7 @@ class AkatAltAPI:
             return
         return Clan(self, **req.json())
 
-    def get_clan_members(self, clan_id, server="akatsuki") -> List[User]:
+    def get_clan_members(self, clan_id, server="akatsuki") -> List[User] | None:
         req = self._get(f"{self.url}/clan/members?server={server}&clan_id={clan_id}")
         if not req.ok or not req.content:
             return
@@ -263,7 +263,7 @@ class AkatAltAPI:
             members.append(User(self, **user))
         return members
     
-    def get_clan_stats(self, clan_id, server="akatsuki", mode=0, relax=0, date=date.today()) -> ClanStatistics:
+    def get_clan_stats(self, clan_id, server="akatsuki", mode=0, relax=0, date=date.today()) -> ClanStatistics | None:
         req = self._get(f"{self.url}/clan/stats?server={server}&clan_id={clan_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}")
         if not req.ok or not req.content:
             return
