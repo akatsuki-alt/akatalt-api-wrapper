@@ -35,6 +35,17 @@ class FirstPlacesEnum(str, Enum):
     new = "new"
     lost = "lost"
 
+class ScoreSortEnum(str, Enum):
+    beatmap_id = "beatmap_id"
+    score_id = "score_id"
+    accuracy = "accuracy"
+    mods = "mods"
+    pp = "pp"
+    score = "score"
+    combo = "combo"
+    rank = "rank"
+    date = "date"
+
 class UserRank:
     
     def __init__(self, global_rank: int, country_rank: int) -> None:
@@ -255,8 +266,8 @@ class AkatAltAPI:
         except:
             return
 
-    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), page=1, length=100) -> Tuple[int, List[Score]] | None:
-        req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&page={page}&length={length}")
+    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), sort: ScoreSortEnum = 'date', desc=True, page=1, length=100) -> Tuple[int, List[Score]] | None:
+        req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&sort={sort}&desc={desc}&page={page}&length={length}")
         if not req.ok or not req.content:
             return
         data = req.json()
