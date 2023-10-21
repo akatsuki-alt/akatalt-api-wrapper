@@ -266,8 +266,8 @@ class AkatAltAPI:
         except:
             return
 
-    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), sort: ScoreSortEnum = 'date', desc=True, page=1, length=100) -> Tuple[int, List[Score]] | None:
-        req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&sort={sort}&desc={desc}&page={page}&length={length}")
+    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), sort: ScoreSortEnum = 'date', desc=True, completed=3, page=1, length=100) -> Tuple[int, List[Score]] | None:
+        req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&sort={sort}&desc={desc}&completed={completed}&page={page}&length={length}")
         if not req.ok or not req.content:
             return
         data = req.json()
