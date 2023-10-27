@@ -1,8 +1,9 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from enum import Enum
 from typing import *
 import requests
 import time
+
 
 class UserLeaderboardTypeEnum(str, Enum):
     pp = "pp"
@@ -46,6 +47,38 @@ class ScoreSortEnum(str, Enum):
     rank = "rank"
     date = "date"
 
+class Beatmap:
+    
+    def __init__(self, beatmap_id: int, beatmap_set_id: int, beatmap_md5: str, artist: str, title: str, version: str, mapper: str, ranked_status: Dict[str, int], last_checked: str, ar: float, od: float, cs: float, length: int, bpm: float, max_combo: int, circles: int, sliders: int, spinners: int, mode: int, tags: str, packs: str, stars_nm: float, stars_ez: float, stars_hr: float, stars_dt: float, stars_dtez: float, stars_dthr: float, approved_date: int) -> None:
+        self.beatmap_id = beatmap_id
+        self.beatmap_set_id = beatmap_set_id
+        self.beatmap_md5 = beatmap_md5
+        self.artist = artist
+        self.title = title
+        self.version = version
+        self.mapper = mapper
+        self.ranked_status = ranked_status
+        self.last_checked = last_checked
+        self.ar = ar
+        self.od = od
+        self.cs = cs
+        self.length = length
+        self.bpm = bpm
+        self.max_combo = max_combo
+        self.circles = circles
+        self.sliders = sliders
+        self.spinners = spinners
+        self.mode = mode
+        self.tags = tags
+        self.packs = packs
+        self.stars_nm = stars_nm
+        self.stars_ez = stars_ez
+        self.stars_hr = stars_hr
+        self.stars_dt = stars_dt
+        self.stars_dtez = stars_dtez
+        self.stars_dthr = stars_dthr
+        self.approved_date = approved_date
+
 class UserRank:
     
     def __init__(self, global_rank: int, country_rank: int) -> None:
@@ -54,7 +87,7 @@ class UserRank:
 
 class Score:
     
-    def __init__(self, api, beatmap_id: int, server: str, user_id: int, mode: int, relax: int, score_id: int, accuracy: float, mods: int, pp: float, score: int, combo: int, rank: str, count_300: int, count_100: int, count_50: int, count_miss: int, completed: int, date: int) -> None:
+    def __init__(self, api, beatmap: Beatmap, beatmap_id: int, server: str, user_id: int, mode: int, relax: int, score_id: int, accuracy: float, mods: int, pp: float, score: int, combo: int, rank: str, count_300: int, count_100: int, count_50: int, count_miss: int, completed: int, date: int) -> None:
         self.api = api
         self.beatmap_id = beatmap_id
         self.server = server
@@ -74,6 +107,7 @@ class Score:
         self.count_miss = count_miss
         self.completed = completed
         self.date = date
+        self.beatmap = beatmap
 
 class User:
     
@@ -253,28 +287,32 @@ class AkatAltAPI:
         except:
             return
 
-    def get_user_1s(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), type: FirstPlacesEnum = "all", page=1, length=100) -> Tuple[int, List[Score]] | None:
-        req = self._get(f"{self.url}/user/first_places?server={server}&user_id={user_id}&mode={mode}&relax={relax}&type={type}&date={date.strftime('%Y-%m-%d')}&page={page}&length={length}")
+    def get_user_1s(self, user_id, server="akatsuki", mode=0, relax=0, date=(date.today()-timedelta(days=1)), score_filter='', beatmap_filter='', type: FirstPlacesEnum = "all", page=1, length=100) -> Tuple[int, List[Score]] | None:
+        req = self._get(f"{self.url}/user/first_places?server={server}&user_id={user_id}&mode={mode}&relax={relax}&type={type}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&page={page}&length={length}")
         if not req.ok or not req.content:
             return
         data = req.json()
         scores = list()
         try:
             for score in data['scores']:
-                scores.append(Score(self, **score))
+                beatmap = Beatmap(**score['beatmap'])
+                del score['beatmap']
+                scores.append(Score(self, **score, beatmap=beatmap))
             return data['total'], scores
-        except:
-            return
+        except Exception as e:
+            print(e)
 
-    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), sort: ScoreSortEnum = 'date', desc=True, completed=3, page=1, length=100) -> Tuple[int, List[Score]] | None:
-        req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&sort={sort}&desc={desc}&completed={completed}&page={page}&length={length}")
+    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), beatmap_filter='', score_filter='', sort: ScoreSortEnum = 'date', desc=True, completed=3, page=1, length=100) -> Tuple[int, List[Score]] | None:
+        req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&sort={sort}&desc={desc}&completed={completed}&page={page}&length={length}")
         if not req.ok or not req.content:
             return
         data = req.json()
         scores = list()
         try:
             for score in data['scores']:
-                scores.append(Score(self, **score))
+                beatmap = Beatmap(**score['beatmap'])
+                del score['beatmap']
+                scores.append(Score(self, **score, beatmap=beatmap))
             return data['total'], scores
         except:
             return
