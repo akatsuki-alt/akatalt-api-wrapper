@@ -287,7 +287,7 @@ class AkatAltAPI:
         except:
             return
 
-    def get_user_1s(self, user_id, server="akatsuki", mode=0, relax=0, date=(date.today()-timedelta(days=1)), score_filter='', beatmap_filter='', sort: ScoreSortEnum = 'date', type: FirstPlacesEnum = "all", page=1, length=100) -> Tuple[int, List[Score]] | None:
+    def get_user_1s(self, user_id, server="akatsuki", mode=0, relax=0, date=(date.today()-timedelta(days=1)), score_filter='', beatmap_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, type: FirstPlacesEnum = "all", page=1, length=100) -> Tuple[int, List[Score]] | None:
         req = self._get(f"{self.url}/user/first_places?server={server}&user_id={user_id}&mode={mode}&relax={relax}&type={type}&sort={sort}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&page={page}&length={length}")
         if not req.ok or not req.content:
             return
@@ -302,7 +302,7 @@ class AkatAltAPI:
         except Exception as e:
             print(e)
 
-    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), beatmap_filter='', score_filter='', sort: ScoreSortEnum = 'date', desc=True, completed=3, page=1, length=100) -> Tuple[int, List[Score]] | None:
+    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), beatmap_filter='', score_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, completed=3, page=1, length=100) -> Tuple[int, List[Score]] | None:
         req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&sort={sort}&desc={desc}&completed={completed}&page={page}&length={length}")
         if not req.ok or not req.content:
             return
