@@ -317,6 +317,21 @@ class AkatAltAPI:
         except:
             return
 
+    def get_all_clears(self, server="akatsuki", mode=0, relax=0, date=date.today(), beatmap_filter='', score_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, completed=3, page=1, length=100) -> Tuple[int, List[Score]] | None:
+        req = self._get(f"{self.url}/user/clears/all?server={server}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&sort={sort}&desc={desc}&completed={completed}&page={page}&length={length}")
+        if not req.ok or not req.content:
+            return
+        data = req.json()
+        scores = list()
+        try:
+            for score in data['scores']:
+                beatmap = Beatmap(**score['beatmap'])
+                del score['beatmap']
+                scores.append(Score(self, **score, beatmap=beatmap))
+            return data['total'], scores
+        except:
+            return
+
     def get_user_rank(self, user_id, server="akatsuki", mode=0, relax=0, type: UserLeaderboardTypeEnum=UserLeaderboardTypeEnum.pp) -> UserRank | None:
         req = self._get(f"{self.url}/user/rank?server={server}&user_id={user_id}&mode={mode}&relax={relax}&type={type}")
         if not req.ok or not req.content:
