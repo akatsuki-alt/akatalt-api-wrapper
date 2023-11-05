@@ -47,6 +47,15 @@ class ScoreSortEnum(str, Enum):
     rank = "rank"
     date = "date"
 
+class UserSortEnum(str, Enum):
+    user_id = "user_id"
+    username = "username"
+    registered_on = "registered_on"
+    latest_activity = "latest_activity"
+    country = "country"
+    clan_id = "clan_id"
+    followers = "followers"
+
 class Beatmap:
     
     def __init__(self, beatmap_id: int, beatmap_set_id: int, beatmap_md5: str, artist: str, title: str, version: str, mapper: str, ranked_status: Dict[str, int], last_checked: str, ar: float, od: float, cs: float, length: int, bpm: float, max_combo: int, circles: int, sliders: int, spinners: int, mode: int, tags: str, packs: str, source: str, language: str, genre: str, spotlight: bool, stars_nm: float, stars_ez: float, stars_hr: float, stars_dt: float, stars_dtez: float, stars_dthr: float, approved_date: int) -> None:
@@ -281,6 +290,12 @@ class AkatAltAPI:
             return User(self, **req.json())
         except:
             return
+
+    def get_user_list(self, server="akatsuki", page=1, length=100, desc=True, sort: UserSortEnum = "user_id", filter="") -> List[User] | None:
+        req = self._get(f"{self.url}/user/list?server={server}&page={page}&length={length}&desc={desc}&sort={sort}&filter={filter}")
+        if not req.ok or not req.content:
+            return
+        return [User(self, **user) for user in req.json()]
 
     def get_user_statistics(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today()) -> UserStatistics | None:
         req = self._get(f"{self.url}/user/stats?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}")
