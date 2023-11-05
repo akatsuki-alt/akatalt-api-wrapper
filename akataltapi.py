@@ -49,7 +49,7 @@ class ScoreSortEnum(str, Enum):
 
 class Beatmap:
     
-    def __init__(self, beatmap_id: int, beatmap_set_id: int, beatmap_md5: str, artist: str, title: str, version: str, mapper: str, ranked_status: Dict[str, int], last_checked: str, ar: float, od: float, cs: float, length: int, bpm: float, max_combo: int, circles: int, sliders: int, spinners: int, mode: int, tags: str, packs: str, stars_nm: float, stars_ez: float, stars_hr: float, stars_dt: float, stars_dtez: float, stars_dthr: float, approved_date: int) -> None:
+    def __init__(self, beatmap_id: int, beatmap_set_id: int, beatmap_md5: str, artist: str, title: str, version: str, mapper: str, ranked_status: Dict[str, int], last_checked: str, ar: float, od: float, cs: float, length: int, bpm: float, max_combo: int, circles: int, sliders: int, spinners: int, mode: int, tags: str, packs: str, source: str, language: str, genre: str, spotlight: bool, stars_nm: float, stars_ez: float, stars_hr: float, stars_dt: float, stars_dtez: float, stars_dthr: float, approved_date: int) -> None:
         self.beatmap_id = beatmap_id
         self.beatmap_set_id = beatmap_set_id
         self.beatmap_md5 = beatmap_md5
@@ -71,6 +71,10 @@ class Beatmap:
         self.mode = mode
         self.tags = tags
         self.packs = packs
+        self.source = source
+        self.genre = genre
+        self.language = language
+        self.spotlight = spotlight
         self.stars_nm = stars_nm
         self.stars_ez = stars_ez
         self.stars_hr = stars_hr
