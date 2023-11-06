@@ -336,8 +336,11 @@ class AkatAltAPI:
         except Exception as e:
             print(e)
 
-    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), beatmap_filter='', score_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, completed=3, page=1, length=100) -> Tuple[int, List[Score]] | None:
-        req = self._get(f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&sort={sort}&desc={desc}&completed={completed}&page={page}&length={length}")
+    def get_user_clears(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today(), beatmap_filter='', score_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, completed=3, page=1, length=100, download_link=False) -> Tuple[int, List[Score]] | Dict[str, str] | None:
+        url = f"{self.url}/user/clears?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&sort={sort}&desc={desc}&completed={completed}&page={page}&length={length}"
+        if download_link:
+            return {'csv': url+"&download_as=csv", 'collection': url+"&download_as=collection"}
+        req = self._get(url)
         if not req.ok or not req.content:
             return
         data = req.json()
@@ -351,8 +354,11 @@ class AkatAltAPI:
         except:
             return
 
-    def get_all_clears(self, server="akatsuki", mode=0, relax=0, date=date.today(), beatmap_filter='', score_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, completed=3, page=1, length=100) -> Tuple[int, List[Score]] | None:
-        req = self._get(f"{self.url}/user/clears/all?server={server}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&sort={sort}&desc={desc}&completed={completed}&page={page}&length={length}")
+    def get_all_clears(self, server="akatsuki", mode=0, relax=0, date=date.today(), beatmap_filter='', score_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, completed=3, page=1, length=100, download_link=False) -> Tuple[int, List[Score]] | Dict[str, str] | None:
+        url = f"{self.url}/user/clears/all?server={server}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&sort={sort}&desc={desc}&completed={completed}&page={page}&length={length}"
+        if download_link:
+            return {'csv': url+"&download_as=csv", 'collection': url+"&download_as=collection"}
+        req = self._get(url)
         if not req.ok or not req.content:
             return
         data = req.json()
