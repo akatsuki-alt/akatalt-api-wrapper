@@ -306,8 +306,11 @@ class AkatAltAPI:
         except:
             return
 
-    def get_user_1s(self, user_id, server="akatsuki", mode=0, relax=0, date=(date.today()-timedelta(days=1)), score_filter='', beatmap_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, type: FirstPlacesEnum = "all", page=1, length=100) -> Tuple[int, List[Score]] | None:
-        req = self._get(f"{self.url}/user/first_places?server={server}&user_id={user_id}&mode={mode}&relax={relax}&type={type}&sort={sort}&desc={desc}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&page={page}&length={length}")
+    def get_user_1s(self, user_id, server="akatsuki", mode=0, relax=0, date=(date.today()-timedelta(days=1)), score_filter='', beatmap_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, type: FirstPlacesEnum = "all", page=1, length=100, download_link=False) -> Tuple[int, List[Score]] | Dict[str, str] | None:
+        url = f"{self.url}/user/first_places?server={server}&user_id={user_id}&mode={mode}&relax={relax}&type={type}&sort={sort}&desc={desc}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&page={page}&length={length}"
+        if download_link:
+            return {'csv': url+"&download_as=csv", 'collection': url+"&download_as=collection"}
+        req = self._get(url)
         if not req.ok or not req.content:
             return
         data = req.json()
@@ -321,8 +324,11 @@ class AkatAltAPI:
         except Exception as e:
             print(e)
             
-    def get_all_1s(self, server="akatsuki", mode=0, relax=0, date=(date.today()-timedelta(days=1)), score_filter='', beatmap_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, page=1, length=100) -> Tuple[int, List[Score]] | None:
-        req = self._get(f"{self.url}/user/first_places/all?server={server}&mode={mode}&relax={relax}&sort={sort}&desc={desc}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&page={page}&length={length}")
+    def get_all_1s(self, server="akatsuki", mode=0, relax=0, date=(date.today()-timedelta(days=1)), score_filter='', beatmap_filter='', sort: ScoreSortEnum = 'date', desc: bool = True, page=1, length=100, download_link=False) -> Tuple[int, List[Score]] | Dict[str, str] | None:
+        url = f"{self.url}/user/first_places/all?server={server}&mode={mode}&relax={relax}&sort={sort}&desc={desc}&date={date.strftime('%Y-%m-%d')}&beatmap_filter={beatmap_filter}&score_filter={score_filter}&page={page}&length={length}"
+        if download_link:
+            return {'csv': url+"&download_as=csv", 'collection': url+"&download_as=collection"}
+        req = self._get(url)
         if not req.ok or not req.content:
             return
         data = req.json()
