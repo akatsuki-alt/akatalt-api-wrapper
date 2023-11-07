@@ -56,6 +56,15 @@ class UserSortEnum(str, Enum):
     clan_id = "clan_id"
     followers = "followers"
 
+class RankedStatusEnum(int, Enum):
+    graveyard = -2
+    wip = -1
+    pending = 0
+    ranked = 1
+    approved = 2
+    qualified = 3
+    loved = 4
+
 class Beatmap:
     
     def __init__(self, beatmap_id: int, beatmap_set_id: int, beatmap_md5: str, artist: str, title: str, version: str, mapper: str, ranked_status: Dict[str, int], last_checked: str, ar: float, od: float, cs: float, length: int, bpm: float, max_combo: int, circles: int, sliders: int, spinners: int, mode: int, tags: str, packs: str, source: str, language: str, genre: str, spotlight: bool, stars_nm: float, stars_ez: float, stars_hr: float, stars_dt: float, stars_dtez: float, stars_dthr: float, approved_date: int) -> None:
@@ -91,6 +100,12 @@ class Beatmap:
         self.stars_dtez = stars_dtez
         self.stars_dthr = stars_dthr
         self.approved_date = approved_date
+
+class ServerBeatmaps:
+    
+    def __init__(self, server_name: str, beatmap_sets: List[str]) -> None:
+        self.server_name = server_name
+        self.beatmap_sets = beatmap_sets
 
 class UserRank:
     
@@ -411,5 +426,29 @@ class AkatAltAPI:
             return
         try:
             return ClanStatistics(self, **req.json())
+        except:
+            return
+    
+    def get_beatmap_sets(self) -> List[ServerBeatmaps] | None:
+        req = self._get(f"{self.url}/beatmaps/server_sets")
+        if not req.ok or not req.content:
+            return
+        servers = list()
+        try:
+            for server, sets in req.json().items():
+                servers.append(ServerBeatmaps(server_name=server, beatmap_sets=sets))
+            return servers
+        except:
+            return
+    
+    def get_beatmaps(self, set_name: str, ranked_status: RankedStatusEnum = RankedStatusEnum.ranked, mode: int = 0, page: int = 1, length: int = 100, beatmap_filter: str = "", download_link: bool = False) -> List[Beatmap] | None:
+        url = f"{self.url}/beatmaps/list?set_name={set_name}&ranked_status={ranked_status.value}&mode={mode}&page={page}&length={length}&beatmap_filter={beatmap_filter}"
+        if download_link:
+            return {'csv': url+"&download_as=csv", 'collection': url+"&download_as=collection"}
+        req = self._get(url)
+        if not req.ok or not req.content:
+            return
+        try:
+            return [Beatmap(**beatmap) for beatmap in req.json()]
         except:
             return
