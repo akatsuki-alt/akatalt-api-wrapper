@@ -262,39 +262,42 @@ class AkatAltAPI:
         self._last = time.time()
         return requests.get(url)
     
-    def get_user_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, type: UserLeaderboardTypeEnum = UserLeaderboardTypeEnum.pp) -> List[UserLeaderboardStats] | None:
+    def get_user_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, type: UserLeaderboardTypeEnum = UserLeaderboardTypeEnum.pp) -> Tuple[int, List[UserLeaderboardStats]] | None:
         req = self._get(f"{self.url}/leaderboard/user?server={server}&mode={mode}&relax={relax}&page={page}&length={length}&type={type}")
         if not req.ok:
             return
         try:
+            data = req.json()
             stats = list()
-            for user in req.json():
+            for user in data['users']:
                 stats.append(UserLeaderboardStats(self, **user))
-            return stats
+            return data['total'], stats
         except:
             return
 
-    def get_user_extra_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, date: date=date.today(), type: UserExtraLeaderboardTypeEnum = UserExtraLeaderboardTypeEnum.pp) -> List[UserStatistics] | None:
+    def get_user_extra_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, date: date=date.today(), type: UserExtraLeaderboardTypeEnum = UserExtraLeaderboardTypeEnum.pp) -> Tuple[int, List[UserStatistics]] | None:
         req = self._get(f"{self.url}/leaderboard/user_extra?server={server}&date={date.strftime('%Y-%m-%d')}&mode={mode}&relax={relax}&page={page}&length={length}&type={type}")
         if not req.ok:
             return
         stats = list()
         try:
-            for user in req.json():
+            data = req.json()
+            for user in data['users']:
                 stats.append(UserStatistics(self, **user))
-            return stats
+            return data['total'], stats
         except:
             return
 
-    def get_clan_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, type: ClanLeaderboardTypeEnum = ClanLeaderboardTypeEnum.pp) -> List[ClanStatistics] | None:
+    def get_clan_leaderboard(self, server="akatsuki", mode=0, relax=0, page=1, length=100, type: ClanLeaderboardTypeEnum = ClanLeaderboardTypeEnum.pp) -> Tuple[int, List[ClanStatistics]] | None:
         req = self._get(f"{self.url}/leaderboard/clan?server={server}&mode={mode}&relax={relax}&page={page}&length={length}&type={type}")
         if not req.ok or not req.content:
             return
         stats = list()
         try:
-            for user in req.json():
+            data = req.json()
+            for user in data['clans']:
                 stats.append(ClanStatistics(self, **user))
-            return stats
+            return data['total'], stats
         except:
             return
 
@@ -307,11 +310,12 @@ class AkatAltAPI:
         except:
             return
 
-    def get_user_list(self, server="akatsuki", page=1, length=100, desc=True, sort: UserSortEnum = "user_id", filter="") -> List[User] | None:
+    def get_user_list(self, server="akatsuki", page=1, length=100, desc=True, sort: UserSortEnum = "user_id", filter="") -> Tuple[int, List[User]] | None:
         req = self._get(f"{self.url}/user/list?server={server}&page={page}&length={length}&desc={desc}&sort={sort}&filter={filter}")
         if not req.ok or not req.content:
             return
-        return [User(self, **user) for user in req.json()]
+        data = req.json()
+        return data['total'], [User(self, **user) for user in data['users']]
 
     def get_user_statistics(self, user_id, server="akatsuki", mode=0, relax=0, date=date.today()) -> UserStatistics | None:
         req = self._get(f"{self.url}/user/stats?server={server}&user_id={user_id}&mode={mode}&relax={relax}&date={date.strftime('%Y-%m-%d')}")
@@ -442,7 +446,7 @@ class AkatAltAPI:
         except:
             return
     
-    def get_beatmaps(self, page: int = 1, length: int = 100, beatmap_filter: str = "", download_link: bool = False) -> List[Beatmap] | None:
+    def get_beatmaps(self, page: int = 1, length: int = 100, beatmap_filter: str = "", download_link: bool = False) -> Tuple[int, List[Beatmap]] | None:
         url = f"{self.url}/beatmaps/list?page={page}&length={length}&beatmap_filter={beatmap_filter}"
         if download_link:
             return {'csv': url+"&download_as=csv", 'collection': url+"&download_as=collection"}
@@ -450,6 +454,7 @@ class AkatAltAPI:
         if not req.ok or not req.content:
             return
         try:
-            return [Beatmap(**beatmap) for beatmap in req.json()]
+            data = req.json()
+            return data['total'], [Beatmap(**beatmap) for beatmap in data['beatmaps']]
         except:
             return
