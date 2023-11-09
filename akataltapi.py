@@ -442,8 +442,8 @@ class AkatAltAPI:
         except:
             return
     
-    def get_beatmaps(self, set_name: str, ranked_status: RankedStatusEnum = RankedStatusEnum.ranked, mode: int = 0, page: int = 1, length: int = 100, beatmap_filter: str = "", download_link: bool = False) -> List[Beatmap] | None:
-        url = f"{self.url}/beatmaps/list?set_name={set_name}&ranked_status={ranked_status.value}&mode={mode}&page={page}&length={length}&beatmap_filter={beatmap_filter}"
+    def get_beatmaps(self, page: int = 1, length: int = 100, beatmap_filter: str = "", download_link: bool = False) -> List[Beatmap] | None:
+        url = f"{self.url}/beatmaps/list?page={page}&length={length}&beatmap_filter={beatmap_filter}"
         if download_link:
             return {'csv': url+"&download_as=csv", 'collection': url+"&download_as=collection"}
         req = self._get(url)
