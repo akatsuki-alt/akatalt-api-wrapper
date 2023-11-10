@@ -56,6 +56,17 @@ class UserSortEnum(str, Enum):
     clan_id = "clan_id"
     followers = "followers"
 
+class BeatmapSortEnum(str, Enum):
+    artist = "artist"
+    title = "title"
+    version = "version"
+    mapper = "mapper"
+    stars_nm = "stars_nm"
+    length = "length"
+    ranked_status = "ranked_status"
+    approved_date = "approved_date"
+    last_checked = "last_checked"
+
 class RankedStatusEnum(int, Enum):
     graveyard = -2
     wip = -1
@@ -446,8 +457,8 @@ class AkatAltAPI:
         except:
             return
     
-    def get_beatmaps(self, page: int = 1, length: int = 100, beatmap_filter: str = "", download_link: bool = False) -> Tuple[int, List[Beatmap]] | None:
-        url = f"{self.url}/beatmaps/list?page={page}&length={length}&beatmap_filter={beatmap_filter}"
+    def get_beatmaps(self, page: int = 1, length: int = 100, sort: BeatmapSortEnum = "title", desc = False, beatmap_filter: str = "", download_link: bool = False) -> Tuple[int, List[Beatmap]] | None:
+        url = f"{self.url}/beatmaps/list?page={page}&length={length}&sort={sort}&desc={desc}&beatmap_filter={beatmap_filter}"
         if download_link:
             return {'csv': url+"&download_as=csv", 'collection': url+"&download_as=collection"}
         req = self._get(url)
