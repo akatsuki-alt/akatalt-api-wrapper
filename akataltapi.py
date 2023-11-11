@@ -457,6 +457,12 @@ class AkatAltAPI:
         except:
             return
     
+    def get_beatmap(self, beatmap_id: int) -> Beatmap | None:
+        req = self._get(f"{self.url}/beatmap?beatmap_id={beatmap_id}")
+        if not req.ok or not req.content:
+            return
+        return Beatmap(**req.json())
+    
     def get_beatmaps(self, page: int = 1, length: int = 100, sort: BeatmapSortEnum = "title", desc = False, beatmap_filter: str = "", download_link: bool = False) -> Tuple[int, List[Beatmap]] | None:
         url = f"{self.url}/beatmaps/list?page={page}&length={length}&sort={sort}&desc={desc}&beatmap_filter={beatmap_filter}"
         if download_link:
