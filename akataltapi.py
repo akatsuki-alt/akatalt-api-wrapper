@@ -197,7 +197,7 @@ class ClanStatistics:
         self.pp = pp
 
     def get_clan(self) -> Clan:
-        return self.api.get_clan_info()
+        return self.api.get_clan_info(self.clan_id, self.server)
 
 class UserLeaderboardStats:
     
