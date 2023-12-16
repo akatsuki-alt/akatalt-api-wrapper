@@ -258,6 +258,16 @@ class UserStatistics:
     def get_user(self) -> User:
         return self.api.get_user_info(server=self.server, user_id=self.user_id)
 
+class UserFilter:
+    
+    def __init__(self, user_id: int, mode: int, relax: int, server: str) -> None:
+        self.user_id = user_id
+        self.mode = mode
+        self.relax = relax
+        self.server = server
+
+    def format(self):
+        return f"{self.mode},{self.relax},{self.user_id},{self.server}"
 
 class AkatAltAPI:
     
@@ -463,8 +473,10 @@ class AkatAltAPI:
             return
         return Beatmap(**req.json())
     
-    def get_beatmaps(self, page: int = 1, length: int = 100, sort: BeatmapSortEnum = "title", desc = False, beatmap_filter: str = "", download_link: bool = False) -> Tuple[int, List[Beatmap]] | None:
+    def get_beatmaps(self, page: int = 1, length: int = 100, sort: BeatmapSortEnum = "title", desc = False, unplayed_by: UserFilter = None, beatmap_filter: str = "", download_link: bool = False) -> Tuple[int, List[Beatmap]] | None:
         url = f"{self.url}/beatmaps/list?page={page}&length={length}&sort={sort}&desc={desc}&beatmap_filter={beatmap_filter}"
+        if unplayed_by:
+            url += f"&unplayed_by_filter={unplayed_by.format()}"
         if download_link:
             return {'csv': url+"&download_as=csv", 'collection': url+"&download_as=collection"}
         req = self._get(url)
